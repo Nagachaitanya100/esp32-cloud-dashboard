@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESP32 Cloud Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;background:#0b1020;color:#f5f7ff;
+  font-family:Arial,sans-serif;min-height:100vh;
+  display:grid;place-items:center;padding:20px
+}
+.panel{
+  width:100%;max-width:440px;background:#151d32;
+  border:1px solid #293653;border-radius:20px;
+  padding:28px;box-shadow:0 20px 60px #0005
+}
+h1{font-size:25px;margin:0 0 8px}
+.sub{color:#9caac5;font-size:14px;margin-bottom:28px}
+.status{
+  background:#202c44;border-radius:12px;padding:15px;
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;font-size:14px
+}
+.dot{display:inline-block;width:9px;height:9px;
+  border-radius:50%;background:#8993a8;margin-right:8px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{
+  border:0;border-radius:12px;padding:17px 10px;
+  color:white;font-size:16px;font-weight:bold;cursor:pointer
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+.on{background:#168653}.off{background:#c43e4b}
+.login{display:flex;gap:9px;margin-top:18px}
+input{
+  min-width:0;flex:1;padding:14px;border-radius:10px;
+  border:1px solid #394965;background:#0d1528;
+  color:white;font-size:15px
+}
+.login button{background:#3868d9;padding:0 18px}
+.message{color:#aab8d2;font-size:13px;line-height:1.5;margin-top:20px}
+.hidden{display:none}
+footer{font-size:11px;color:#7888a7;text-align:center;margin-top:25px}
+</style>
+</head>
+<body>
+<main class="panel">
+  <h1>ESP32 Cloud Control</h1>
+  <div class="sub">Smart Light Management Dashboard</div>
+
+  <section id="login">
+    <div class="status">Dashboard access <span>Login required</span></div>
+    <form class="login" id="loginForm">
+      <input id="password" type="password"
+        placeholder="Dashboard password" required>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="status">
+      <span><i class="dot" id="dot"></i>Connection</span>
+      <strong id="connection">Checking...</strong>
+    </div>
+    <div class="controls">
+      <button class="on" id="turnOn">LIGHT ON</button>
+      <button class="off" id="turnOff">LIGHT OFF</button>
+    </div>
+    <p class="message" id="result">Ready.</p>
+    <button id="logout" style="background:#35435f;width:100%;margin-top:15px">
+      Logout
+    </button>
+  </section>
+
+  <footer>ESP32 Cloud Dashboard · Secure access</footer>
+</main>
+
+<script>
+const API = "https://esp32-public-api.nagachaitanyathatipamula.workers.dev";
+
+const login = document.getElementById("login");
+const dashboard = document.getElementById("dashboard");
+const result = document.getElementById("result");
+
+document.getElementById("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  result.textContent = "Login integration is not connected yet.";
+});
+
+document.getElementById("turnOn").addEventListener("click", () => {
+  result.textContent = "ON control is awaiting secure API integration.";
+});
+
+document.getElementById("turnOff").addEventListener("click", () => {
+  result.textContent = "OFF control is awaiting secure API integration.";
+});
+
+document.getElementById("logout").addEventListener("click", () => {
+  dashboard.classList.add("hidden");
+  login.classList.remove("hidden");
+});
+</script>
+</body>
+</html>
