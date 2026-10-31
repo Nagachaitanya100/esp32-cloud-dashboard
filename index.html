@@ -3,112 +3,317 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ESP32 Cloud Dashboard</title>
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;min-height:100vh;display:grid;place-items:center;
- padding:20px;background:#0b1020;color:#f5f7ff;
- font-family:Inter,Arial,sans-serif
+  margin:0;background:#0b1020;color:#e8edf8;
+  font-family:Inter,Arial,sans-serif;
+  min-height:100vh;padding:24px;
 }
+.container{max-width:850px;margin:auto}
+header{margin:25px 0 30px}
+h1{font-size:30px;margin-bottom:8px}
+.muted{color:#94a3b8}
 .card{
- width:100%;max-width:420px;padding:30px;
- background:#151d32;border:1px solid #293653;
- border-radius:22px;box-shadow:0 25px 80px #0007
+  background:#151e32;border:1px solid #293650;
+  padding:22px;border-radius:16px;margin-bottom:18px;
 }
-.brand{display:flex;align-items:center;gap:12px}
-.logo{
- width:46px;height:46px;border-radius:13px;
- display:grid;place-items:center;background:#1d3154;
- color:#75a9ff;font-size:24px
-}
-.brand strong{letter-spacing:1px}
-.muted{color:#91a3c3;font-size:13px}
-.online{margin-left:auto;color:#5de0a0;font-size:12px}
-.line{height:1px;background:#293653;margin:25px 0}
-h1{font-size:30px;margin:0 0 9px}
-.description{color:#aab8d2;font-size:14px;line-height:1.6}
-label{display:block;color:#aab8d2;font-size:12px;
- letter-spacing:1px;margin:25px 0 9px}
-.password{display:flex;align-items:center;
- background:#0d1528;border:1px solid #394965;
- border-radius:11px;padding-right:12px}
 input{
- width:100%;min-width:0;padding:15px;background:transparent;
- border:0;outline:none;color:white;font-size:15px
+  width:100%;padding:14px;border-radius:9px;
+  border:1px solid #394966;background:#0b1020;
+  color:white;margin:12px 0;
 }
-input::placeholder{color:#70809d}
-.toggle{background:none;border:0;color:#91a3c3;cursor:pointer}
-button.login{
- width:100%;margin-top:20px;padding:15px;border:0;
- border-radius:11px;background:#3868d9;color:white;
- font-size:15px;font-weight:bold;cursor:pointer
+button{
+  border:0;border-radius:9px;padding:13px 18px;
+  font-weight:700;cursor:pointer;margin:5px;
 }
-button.login:disabled{opacity:.5;cursor:not-allowed}
-.options{display:flex;justify-content:space-between;
- align-items:center;margin-top:15px;font-size:12px;color:#91a3c3}
-#message{font-size:12px;color:#f5c46b;min-height:18px;margin-top:12px}
-.footer{display:flex;justify-content:space-between;
- color:#7184a5;font-size:11px}
+.primary{background:#3b82f6;color:white}
+.on{background:#16a34a;color:white}
+.off{background:#dc2626;color:white}
+.secondary{background:#334155;color:white}
+button:disabled{opacity:.5;cursor:not-allowed}
+.status{font-size:14px;margin-top:12px;color:#94a3b8}
+pre{
+  background:#080d19;padding:15px;border-radius:9px;
+  overflow:auto;white-space:pre-wrap;word-break:break-word;
+  color:#a7f3d0;font-size:12px;
+}
+.hidden{display:none}
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+.indicator{display:inline-block;width:9px;height:9px;
+  background:#64748b;border-radius:50%;margin-right:8px}
+@media(max-width:550px){
+  body{padding:14px}.grid{grid-template-columns:1fr}
+  h1{font-size:25px}
+}
 </style>
 </head>
 <body>
-<main class="card">
- <div class="brand">
-  <div class="logo">⌘</div>
-  <div>
-   <strong>ESP32 CLOUD</strong>
-   <div class="muted">SMART DEVICE MANAGEMENT</div>
-  </div>
-  <div class="online">● ONLINE</div>
- </div>
+<div class="container">
+<header>
+  <h1>ESP32 Cloud Controller</h1>
+  <div class="muted">Secure remote light management</div>
+</header>
 
- <div class="line"></div>
+<section id="loginCard" class="card">
+  <h2>Dashboard Login</h2>
+  <p class="muted">Authenticate to access your ESP32 controller.</p>
+  <form id="loginForm">
+    <input id="password" type="password"
+      placeholder="Dashboard password" required maxlength="1024">
+    <button class="primary" type="submit" id="loginButton">
+      Login
+    </button>
+  </form>
+  <div id="loginStatus" class="status"></div>
+</section>
 
- <h1>Welcome back.</h1>
- <div class="description">
-  Sign in to access your smart light controller.
- </div>
+<main id="dashboard" class="hidden">
+  <section class="card">
+    <h2>System Status</h2>
+    <p><span class="indicator" id="connectionDot"></span>
+      <span id="connectionStatus">Not checked</span>
+    </p>
+    <p class="muted" id="sessionStatus">Session active</p>
+    <div class="grid">
+      <button class="primary" id="connectionButton">
+        Test Connection
+      </button>
+      <button class="secondary" id="authButton">
+        Test Backend Authentication
+      </button>
+    </div>
+  </section>
 
- <form id="loginForm">
-  <label for="password">DASHBOARD PASSWORD</label>
-  <div class="password">
-   <input id="password" type="password"
-    placeholder="Enter your password" required>
-   <button class="toggle" type="button" id="toggle">Show</button>
-  </div>
-  <div class="options">
-   <span>Secure dashboard access</span>
-   <span>🔒 Protected</span>
-  </div>
-  <button class="login" type="submit">Sign in →</button>
-  <div id="message" role="status"></div>
- </form>
+  <section class="card">
+    <h2>Light Controller</h2>
+    <p class="muted">
+      Commands are sent to the backend through Cloudflare.
+    </p>
+    <div class="grid">
+      <button class="on" id="onButton">Turn Light ON</button>
+      <button class="off" id="offButton">Turn Light OFF</button>
+    </div>
+    <div id="commandStatus" class="status">
+      No command sent during this session.
+    </div>
+  </section>
 
- <div class="line"></div>
- <div class="footer">
-  <span>ESP32 Cloud Control</span>
-  <span>Secure Dashboard</span>
- </div>
+  <section class="card">
+    <h2>API Response</h2>
+    <pre id="output">Waiting for an API request...</pre>
+  </section>
+
+  <section class="card">
+    <button class="secondary" id="logoutButton">
+      Logout
+    </button>
+  </section>
 </main>
+</div>
 
 <script>
-const password=document.getElementById("password");
-const toggle=document.getElementById("toggle");
-const message=document.getElementById("message");
+"use strict";
 
-toggle.addEventListener("click",()=>{
- const visible=password.type==="password";
- password.type=visible?"text":"password";
- toggle.textContent=visible?"Hide":"Show";
+const API = "https://esp32-public-api.nagachaitanyathatipamula.workers.dev";
+const TOKEN_KEY = "esp32_dashboard_session";
+
+let sessionToken = null;
+
+const $ = id => document.getElementById(id);
+
+function showOutput(data) {
+  $("output").textContent = JSON.stringify(data, null, 2);
+}
+
+function setStatus(id, text) {
+  $(id).textContent = text;
+}
+
+function saveSession(token) {
+  sessionToken = token;
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function clearSession() {
+  sessionToken = null;
+  localStorage.removeItem(TOKEN_KEY);
+  $("dashboard").classList.add("hidden");
+  $("loginCard").classList.remove("hidden");
+  setStatus("sessionStatus", "Session ended");
+}
+
+async function apiRequest(path, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (sessionToken) {
+    headers.Authorization = `Bearer ${sessionToken}`;
+  }
+
+  const response = await fetch(API + path, {
+    ...options,
+    headers,
+    credentials: "omit"
+  });
+
+  const data = await response.json().catch(() => ({
+    error: "Invalid API response"
+  }));
+
+  if (response.status === 401 && path !== "/dashboard/login") {
+    clearSession();
+  }
+
+  return {ok: response.ok, status: response.status, data};
+}
+
+async function verifySession() {
+  if (!sessionToken) return false;
+
+  try {
+    const result = await apiRequest("/dashboard/session");
+
+    if (result.ok && result.data.authenticated) {
+      $("loginCard").classList.add("hidden");
+      $("dashboard").classList.remove("hidden");
+      setStatus("sessionStatus", "Authenticated · 30-minute session");
+      return true;
+    }
+  } catch (error) {
+    showOutput({error: error.message});
+  }
+
+  clearSession();
+  return false;
+}
+
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const password = $("password").value;
+  $("loginButton").disabled = true;
+  setStatus("loginStatus", "Authenticating...");
+
+  try {
+    const result = await apiRequest("/dashboard/login", {
+      method: "POST",
+      body: JSON.stringify({password})
+    });
+
+    showOutput(result.data);
+
+    if (result.ok && result.data.authenticated && result.data.token) {
+      saveSession(result.data.token);
+      $("password").value = "";
+      await verifySession();
+      setStatus("loginStatus", "Login successful");
+    } else {
+      setStatus("loginStatus", "Login failed");
+    }
+  } catch (error) {
+    setStatus("loginStatus", "Connection error");
+    showOutput({error: error.message});
+  } finally {
+    $("loginButton").disabled = false;
+  }
 });
 
-document.getElementById("loginForm").addEventListener("submit",e=>{
- e.preventDefault();
- message.textContent=
- "Login interface ready. Secure authentication is not connected yet.";
+$("connectionButton").addEventListener("click", async () => {
+  setStatus("connectionStatus", "Checking...");
+  $("connectionDot").style.background = "#eab308";
+
+  try {
+    const result = await apiRequest("/connection-test");
+    showOutput(result.data);
+
+    if (result.ok) {
+      setStatus("connectionStatus", "Backend responded");
+      $("connectionDot").style.background = "#22c55e";
+    } else {
+      setStatus("connectionStatus", "Backend error");
+      $("connectionDot").style.background = "#ef4444";
+    }
+  } catch (error) {
+    setStatus("connectionStatus", "Connection failed");
+    $("connectionDot").style.background = "#ef4444";
+    showOutput({error: error.message});
+  }
 });
+
+$("authButton").addEventListener("click", async () => {
+  try {
+    const result = await apiRequest("/auth-test");
+    showOutput(result.data);
+  } catch (error) {
+    showOutput({error: error.message});
+  }
+});
+
+async function sendLightCommand(action) {
+  const button = action === "on" ? $("onButton") : $("offButton");
+  const confirmed = confirm(
+    `Send the LIGHT ${action.toUpperCase()} command to the ESP32 backend?`
+  );
+
+  if (!confirmed) return;
+
+  $("onButton").disabled = true;
+  $("offButton").disabled = true;
+  setStatus("commandStatus", "Sending command...");
+
+  try {
+    const result = await apiRequest(`/light/${action}`, {
+      method: "POST",
+      body: JSON.stringify({})
+    });
+
+    showOutput(result.data);
+
+    if (result.ok) {
+      setStatus(
+        "commandStatus",
+        `HTTP ${result.status}: Backend accepted/responded. ` +
+        "Physical ESP32 execution is not independently verified."
+      );
+    } else {
+      setStatus("commandStatus", `Command failed: HTTP ${result.status}`);
+    }
+  } catch (error) {
+    setStatus("commandStatus", "Network or API error");
+    showOutput({error: error.message});
+  } finally {
+    $("onButton").disabled = false;
+    $("offButton").disabled = false;
+  }
+}
+
+$("onButton").addEventListener("click", () => sendLightCommand("on"));
+$("offButton").addEventListener("click", () => sendLightCommand("off"));
+
+$("logoutButton").addEventListener("click", async () => {
+  try {
+    await apiRequest("/dashboard/logout", {method: "POST"});
+  } catch (error) {
+    showOutput({error: error.message});
+  } finally {
+    clearSession();
+  }
+});
+
+(async function init() {
+  sessionToken = localStorage.getItem(TOKEN_KEY);
+
+  if (sessionToken) {
+    await verifySession();
+  }
+})();
 </script>
 </body>
 </html>
