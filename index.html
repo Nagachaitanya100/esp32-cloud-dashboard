@@ -8,98 +8,106 @@
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;background:#0b1020;color:#f5f7ff;
-  font-family:Arial,sans-serif;min-height:100vh;
-  display:grid;place-items:center;padding:20px
+ margin:0;min-height:100vh;display:grid;place-items:center;
+ padding:20px;background:#0b1020;color:#f5f7ff;
+ font-family:Inter,Arial,sans-serif
 }
-.panel{
-  width:100%;max-width:440px;background:#151d32;
-  border:1px solid #293653;border-radius:20px;
-  padding:28px;box-shadow:0 20px 60px #0005
+.card{
+ width:100%;max-width:420px;padding:30px;
+ background:#151d32;border:1px solid #293653;
+ border-radius:22px;box-shadow:0 25px 80px #0007
 }
-h1{font-size:25px;margin:0 0 8px}
-.sub{color:#9caac5;font-size:14px;margin-bottom:28px}
-.status{
-  background:#202c44;border-radius:12px;padding:15px;
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:24px;font-size:14px
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+ width:46px;height:46px;border-radius:13px;
+ display:grid;place-items:center;background:#1d3154;
+ color:#75a9ff;font-size:24px
 }
-.dot{display:inline-block;width:9px;height:9px;
-  border-radius:50%;background:#8993a8;margin-right:8px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-button{
-  border:0;border-radius:12px;padding:17px 10px;
-  color:white;font-size:16px;font-weight:bold;cursor:pointer
-}
-button:disabled{opacity:.45;cursor:not-allowed}
-.on{background:#168653}.off{background:#c43e4b}
-.login{display:flex;gap:9px;margin-top:18px}
+.brand strong{letter-spacing:1px}
+.muted{color:#91a3c3;font-size:13px}
+.online{margin-left:auto;color:#5de0a0;font-size:12px}
+.line{height:1px;background:#293653;margin:25px 0}
+h1{font-size:30px;margin:0 0 9px}
+.description{color:#aab8d2;font-size:14px;line-height:1.6}
+label{display:block;color:#aab8d2;font-size:12px;
+ letter-spacing:1px;margin:25px 0 9px}
+.password{display:flex;align-items:center;
+ background:#0d1528;border:1px solid #394965;
+ border-radius:11px;padding-right:12px}
 input{
-  min-width:0;flex:1;padding:14px;border-radius:10px;
-  border:1px solid #394965;background:#0d1528;
-  color:white;font-size:15px
+ width:100%;min-width:0;padding:15px;background:transparent;
+ border:0;outline:none;color:white;font-size:15px
 }
-.login button{background:#3868d9;padding:0 18px}
-.message{color:#aab8d2;font-size:13px;line-height:1.5;margin-top:20px}
-.hidden{display:none}
-footer{font-size:11px;color:#7888a7;text-align:center;margin-top:25px}
+input::placeholder{color:#70809d}
+.toggle{background:none;border:0;color:#91a3c3;cursor:pointer}
+button.login{
+ width:100%;margin-top:20px;padding:15px;border:0;
+ border-radius:11px;background:#3868d9;color:white;
+ font-size:15px;font-weight:bold;cursor:pointer
+}
+button.login:disabled{opacity:.5;cursor:not-allowed}
+.options{display:flex;justify-content:space-between;
+ align-items:center;margin-top:15px;font-size:12px;color:#91a3c3}
+#message{font-size:12px;color:#f5c46b;min-height:18px;margin-top:12px}
+.footer{display:flex;justify-content:space-between;
+ color:#7184a5;font-size:11px}
 </style>
 </head>
 <body>
-<main class="panel">
-  <h1>ESP32 Cloud Control</h1>
-  <div class="sub">Smart Light Management Dashboard</div>
+<main class="card">
+ <div class="brand">
+  <div class="logo">⌘</div>
+  <div>
+   <strong>ESP32 CLOUD</strong>
+   <div class="muted">SMART DEVICE MANAGEMENT</div>
+  </div>
+  <div class="online">● ONLINE</div>
+ </div>
 
-  <section id="login">
-    <div class="status">Dashboard access <span>Login required</span></div>
-    <form class="login" id="loginForm">
-      <input id="password" type="password"
-        placeholder="Dashboard password" required>
-      <button type="submit">Login</button>
-    </form>
-  </section>
+ <div class="line"></div>
 
-  <section id="dashboard" class="hidden">
-    <div class="status">
-      <span><i class="dot" id="dot"></i>Connection</span>
-      <strong id="connection">Checking...</strong>
-    </div>
-    <div class="controls">
-      <button class="on" id="turnOn">LIGHT ON</button>
-      <button class="off" id="turnOff">LIGHT OFF</button>
-    </div>
-    <p class="message" id="result">Ready.</p>
-    <button id="logout" style="background:#35435f;width:100%;margin-top:15px">
-      Logout
-    </button>
-  </section>
+ <h1>Welcome back.</h1>
+ <div class="description">
+  Sign in to access your smart light controller.
+ </div>
 
-  <footer>ESP32 Cloud Dashboard · Secure access</footer>
+ <form id="loginForm">
+  <label for="password">DASHBOARD PASSWORD</label>
+  <div class="password">
+   <input id="password" type="password"
+    placeholder="Enter your password" required>
+   <button class="toggle" type="button" id="toggle">Show</button>
+  </div>
+  <div class="options">
+   <span>Secure dashboard access</span>
+   <span>🔒 Protected</span>
+  </div>
+  <button class="login" type="submit">Sign in →</button>
+  <div id="message" role="status"></div>
+ </form>
+
+ <div class="line"></div>
+ <div class="footer">
+  <span>ESP32 Cloud Control</span>
+  <span>Secure Dashboard</span>
+ </div>
 </main>
 
 <script>
-const API = "https://esp32-public-api.nagachaitanyathatipamula.workers.dev";
+const password=document.getElementById("password");
+const toggle=document.getElementById("toggle");
+const message=document.getElementById("message");
 
-const login = document.getElementById("login");
-const dashboard = document.getElementById("dashboard");
-const result = document.getElementById("result");
-
-document.getElementById("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  result.textContent = "Login integration is not connected yet.";
+toggle.addEventListener("click",()=>{
+ const visible=password.type==="password";
+ password.type=visible?"text":"password";
+ toggle.textContent=visible?"Hide":"Show";
 });
 
-document.getElementById("turnOn").addEventListener("click", () => {
-  result.textContent = "ON control is awaiting secure API integration.";
-});
-
-document.getElementById("turnOff").addEventListener("click", () => {
-  result.textContent = "OFF control is awaiting secure API integration.";
-});
-
-document.getElementById("logout").addEventListener("click", () => {
-  dashboard.classList.add("hidden");
-  login.classList.remove("hidden");
+document.getElementById("loginForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ message.textContent=
+ "Login interface ready. Secure authentication is not connected yet.";
 });
 </script>
 </body>
